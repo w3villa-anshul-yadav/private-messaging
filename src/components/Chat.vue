@@ -1,0 +1,160 @@
+<template>
+  <div>
+    <div class="left-panel">
+      <user
+        v-for="user in users"
+        :key="user.uniqueId"
+        :user="user"
+        :selected="selectedUser === user"
+        @select="onSelectUser(user)"
+      />
+    </div>
+    <message-panel
+      v-if="selectedUser"
+      :user="selectedUser"
+      @input="onMessage"
+      class="right-panel"
+    />
+  </div>
+</template>
+
+<script>
+import socket from "../socket";
+import User from "./User";
+import MessagePanel from "./MessagePanel";
+
+export default {
+  name: "Chat",
+  components: { User, MessagePanel },
+  data() {
+    return {
+      selectedUser: null,
+      users: [],
+    };
+  },
+  methods: {
+    onMessage(content) {
+      if (this.selectedUser) {
+        socket.emit("private_message", {
+          content,
+          to: this.selectedUser.uniqueId,
+        });
+        // Push message with fromSelf set to true
+        this.selectedUser.messages.push({
+          content,
+          fromSelf: true,
+        });
+      }
+    },
+    onSelectUser(user) {
+      this.selectedUser = user;
+      user.hasNewMessages = false;
+    },
+  },
+  created() {
+    socket.on("connect", () => {
+      this.users.forEach((user) => {
+        if (user.self) {
+          user.connected = true;
+        }
+      });
+    });
+
+    socket.on("disconnect", () => {
+      this.users.forEach((user) => {
+        if (user.self) {
+          user.connected = false;
+        }
+      });
+    });
+
+    const initReactiveProperties = (user) => {
+      user.hasNewMessages = false;
+    };
+
+    socket.on("users", (users) => {
+      let currentUserUniqueId = socket.auth.uniqueId;
+      users.forEach((user) => {
+        user.messages.forEach((message) => {
+          message.fromSelf = message.from === currentUserUniqueId;
+        });
+        let existingUserIndex = this.users.findIndex((existingUser) => existingUser.uniqueId === user.uniqueId);
+        if (existingUserIndex !== -1) {
+          const existingUser = this.users[existingUserIndex];
+          existingUser.connected = user.connected;
+          existingUser.messages = user.messages;
+        } else {
+          user.self = user.uniqueId === currentUserUniqueId;
+          initReactiveProperties(user);
+          this.users.push(user);
+        }
+      });
+
+      // Put the current user first, and sort by uniqueId
+      this.users.sort((a, b) => {
+        if (a.self) return -1;
+        if (b.self) return 1;
+        if (a.uniqueId < b.uniqueId) return -1;
+        return a.uniqueId > b.uniqueId ? 1 : 0;
+      });
+    });
+
+    socket.on("user_connected", (user) => {
+      let existingUser = this.users.find((existingUser) => existingUser.uniqueId === user.uniqueId);
+      if (existingUser) {
+        existingUser.connected = true;
+      } else {
+        initReactiveProperties(user);
+        this.users.push(user);
+      }
+    });
+
+    socket.on("user_disconnected", (id) => {
+      let user = this.users.find((user) => user.uniqueId === id);
+      if (user) {
+        user.connected = false;
+      }
+    });
+
+    socket.on("private_message", ({ content, from, to }) => {
+      let currentUserUniqueId = socket.auth.uniqueId;
+
+      let user = this.users.find((user) => user.uniqueId === (currentUserUniqueId === from ? to : from));
+      if (user) {
+        user.messages.push({
+          content,
+          fromSelf: currentUserUniqueId === from,
+        });
+        if (user !== this.selectedUser) {
+          user.hasNewMessages = true;
+        }
+      }
+    });
+  },
+  destroyed() {
+    socket.off("connect");
+    socket.off("disconnect");
+    socket.off("users");
+    socket.off("user_connected");
+    socket.off("user_disconnected");
+    socket.off("private_message");
+  },
+};
+</script>
+
+<style scoped>
+.left-panel {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 260px;
+  overflow-x: hidden;
+  background-color: #9AC8CD;
+  color: black;
+}
+
+.right-panel {
+  margin-left: 260px;
+}
+</style>
