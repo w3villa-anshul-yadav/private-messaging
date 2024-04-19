@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <header>
-      <h1>{{ currentUserFullName }}</h1>
+    <header v-if="!!currentUserFullName">
+      <h1>{{ userType == "expert" ? "Expert: " + currentUserFullName : currentUserFullName }}</h1>
     </header>
     <select-uniqueId v-if="!uniqueIdAlreadySelected" @input="onUniqueIdSelection" />
     <chat v-else />
@@ -23,6 +23,7 @@ export default {
     return {
       uniqueIdAlreadySelected: false,
       currentUserFullName: "", // New data property for the current user's name
+      userType: ""
     };
   },
   methods: {
@@ -41,6 +42,8 @@ export default {
     if (uniqueId && userType && fullName) {
       this.uniqueIdAlreadySelected = true;
       this.currentUserFullName = fullName; // Set current user's name
+      this.userType = userType; // Set current user's type
+
       socket.auth = { uniqueId, userType, fullName };
       socket.connect();
     }
@@ -48,12 +51,10 @@ export default {
     socket.on("session", ({ uniqueId, userType, fullName }) => {
       // attach the session ID to the next reconnection attempts
       socket.auth = { uniqueId, userType, fullName };
-      if (userType === "expert") {
-        document.body.classList.add("expert-body");
-      } else {
-        document.body.classList.remove("expert-body");
-      }
+
       this.currentUserFullName = fullName; // Update current user's name
+      this.userType = userType; // Update current user's type
+
       // store it in the localStorage
       localStorage.setItem("uniqueId", uniqueId);
       localStorage.setItem("userType", userType);
@@ -77,14 +78,11 @@ export default {
 <style>
 body {
   margin: 0;
-  background-color: #E1F7F5;
+  background-color: #E1F7F5 !important;
   color: black !important;
 }
 
-.expert-body {
-  background-color: #fd4747 !important;
-  /* Red background color for expert */
-}
+
 @font-face {
   font-family: Lato;
   src: "~/public/fonts/Lato-Regular.ttf";
@@ -93,17 +91,17 @@ body {
 #app {
   font-family: Lato, Arial, sans-serif;
   font-size: 17px;
-  }
-  
-  header {
-    background-color: #333;
+}
+
+header {
     color: white;
     padding: 10px;
+    padding-left: 300px;
     text-align: center;
+    background-color: #333;
   }
   
   header h1 {
     margin: 0;
-    text-align: center;
 }
 </style>

@@ -1,5 +1,7 @@
 <template>
+
   <div class="container clearfix">
+
     <div class="chat">
       <div class="chat-header clearfix">
         <img
