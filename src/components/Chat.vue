@@ -1,20 +1,10 @@
 <template>
   <div>
     <div class="left-panel">
-      <user
-        v-for="user in users"
-        :key="user.uniqueId"
-        :user="user"
-        :selected="selectedUser === user"
-        @select="onSelectUser(user)"
-      />
+      <user v-for="user in users" :key="user.uniqueId" :user="user" :selected="selectedUser === user"
+        @select="onSelectUser(user)" />
     </div>
-    <message-panel
-      v-if="selectedUser"
-      :user="selectedUser"
-      @input="onMessage"
-      class="right-panel"
-    />
+    <message-panel v-if="selectedUser" :user="selectedUser" @input="onMessage" class="right-panel" />
   </div>
 </template>
 
@@ -72,29 +62,41 @@ export default {
       user.hasNewMessages = false;
     };
 
+    // Listening for the "users" event from the server, which provides information about users
     socket.on("users", (users) => {
+      // Get the unique ID of the current user from the authentication data
       let currentUserUniqueId = socket.auth.uniqueId;
+      console.log('> HERE ===========================================currentUserUniqueId', currentUserUniqueId);
+
+      // Iterate through each user received from the server
       users.forEach((user) => {
+        // Iterate through each message of the user
         user.messages.forEach((message) => {
+          // Determine if the message is sent by the current user
           message.fromSelf = message.from === currentUserUniqueId;
         });
+
+        // Find if the user already exists in the local users array
         let existingUserIndex = this.users.findIndex((existingUser) => existingUser.uniqueId === user.uniqueId);
         if (existingUserIndex !== -1) {
+          // If the user already exists, update its properties
           const existingUser = this.users[existingUserIndex];
           existingUser.connected = user.connected;
           existingUser.messages = user.messages;
         } else {
-          user.self = user.uniqueId === currentUserUniqueId;
-          initReactiveProperties(user);
-          this.users.push(user);
+          // If the user doesn't exist, add it to the local users array
+          user.self = user.uniqueId === currentUserUniqueId; // Mark if the user is the current user
+          initReactiveProperties(user); // Initialize reactive properties for the user
+          this.users.push(user); // Add the user to the local users array
         }
       });
 
-      // Put the current user first, and sort by uniqueId
+      // Sort the users array
+      // The current user is sorted first, followed by others sorted by uniqueId
       this.users.sort((a, b) => {
-        if (a.self) return -1;
-        if (b.self) return 1;
-        if (a.uniqueId < b.uniqueId) return -1;
+        if (a.self) return -1; // Current user comes first
+        if (b.self) return 1; // Current user comes first
+        if (a.uniqueId < b.uniqueId) return -1; // Sort users by uniqueId
         return a.uniqueId > b.uniqueId ? 1 : 0;
       });
     });
@@ -148,13 +150,13 @@ export default {
   left: 0;
   top: 0;
   bottom: 0;
-  width: 260px;
+  width: 300px;
   overflow-x: hidden;
-  background-color: #9AC8CD;
+  background-color: #444753;
   color: black;
 }
 
 .right-panel {
-  margin-left: 260px;
+  margin-left: 300px;
 }
 </style>

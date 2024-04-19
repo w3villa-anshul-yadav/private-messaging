@@ -9,7 +9,7 @@
 
 <script>
 export default {
-  name: "SelectuniqueId",
+  name: "SelectUniqueId",
   data() {
     return {
       uniqueId: "",
@@ -17,7 +17,7 @@ export default {
   },
   computed: {
     isValid() {
-      return this.uniqueId.length > 2;
+      return this.uniqueId.length > 0; // Changed from 2 to 0 to allow any non-empty input
     },
   },
   methods: {
