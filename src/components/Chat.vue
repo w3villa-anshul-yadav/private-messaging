@@ -30,9 +30,7 @@ export default {
           data,
           to: this.selectedUser.uniqueId,
         });
-        socket.emit("older_messages", {
-          user1: "b3429ac4-ceaf-42fb-a1a8-90f320e35b91", user2: "20a83322-54a3-4194-868e-982c6ab488f3", timeStamp: 1713873741959, limit: 100, pageNo: 1
-        })
+        
         this.selectedUser.messages.push({
           data,
           fromSelf: true,
