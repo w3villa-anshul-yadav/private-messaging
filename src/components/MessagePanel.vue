@@ -19,12 +19,14 @@
           <li v-for="(message, index) in user.messages" :key="index"
             :class="{ 'clearfix': !message.fromSelf, 'align-left': message.fromSelf }">
             <div class="message-data">
-              <span class="message-data-name" :class="{ 'me': message.fromSelf, 'online': user.connected }">{{
+              <span class="message-data-name" :class="{ 'me': message.fromSelf, 'online ': user.connected }">{{
                 message.fromSelf ? 'You' : user.fullName }}</span>
-              <span class="message-data-time">{{ message.time }}</span>
+              <span class="message-data-time">
+                {{ new Date(message.data.time).toLocaleString() }}
+              </span>
             </div>
             <div class="message" :class="{ 'my-message': message.fromSelf, 'other-message': !message.fromSelf }">
-              {{ message.content.content }}
+              {{ message.data.content }}
             </div>
           </li>
         </ul>
@@ -40,6 +42,7 @@
 </template>
 
 <script>
+
 export default {
   name: "MessagePanel",
   props: {
@@ -56,7 +59,7 @@ export default {
         this.$emit("input", {
           content: this.input.trim(),
           fromSelf: true,
-          time: new Date().toLocaleTimeString(),
+          time: Date.now(),
         });
         this.input = "";
       }
@@ -208,7 +211,7 @@ export default {
 }
 
 .chat .chat-message button:hover {
-  color: #75b1e8;
+  color: #eb2a08;
 }
 
 .online,
@@ -218,6 +221,11 @@ export default {
   font-size: 15px;
 }
 
+.online-sender {
+  float: right;
+  margin-right: 20px;
+  font-size: 15px;
+}
 .online {
   color: #86BB71;
 }

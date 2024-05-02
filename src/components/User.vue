@@ -6,6 +6,7 @@
       </div>
       <div class="status">
         <status-icon :connected="user.connected" />{{ status }}
+        <status-icon :connected="!user.isBusy" />{{ busyStatus }}
       </div>
     </div>
     <div v-if="user.hasNewMessages" class="new-messages">🔴</div>
@@ -30,6 +31,9 @@ export default {
     status() {
       return this.user.connected ? "online" : "offline";
     },
+    busyStatus() {
+      return this.user.isBusy ? "busy" : "available";
+    }
   },
 };
 </script>
@@ -48,7 +52,10 @@ export default {
     justify-content: space-between;
     /* Distribute space between items */
 }
-
+.busy-status {
+  color: #ff7a52;
+  display: inline;
+}
 .description {
   display: inline-block;
 }

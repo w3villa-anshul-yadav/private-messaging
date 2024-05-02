@@ -23,18 +23,22 @@ export default {
     };
   },
   methods: {
-    onMessage(content) {
+    onMessage(data) {
       if (this.selectedUser) {
+        socket.emit("is_busy", { busyWith: this.selectedUser.uniqueId });
         socket.emit("private_message", {
-          content,
+          data,
           to: this.selectedUser.uniqueId,
         });
-        // Push message with fromSelf set to true
+        socket.emit("older_messages", {
+          user1: "b3429ac4-ceaf-42fb-a1a8-90f320e35b91", user2: "20a83322-54a3-4194-868e-982c6ab488f3", timeStamp: 1713873741959, limit: 100, pageNo: 1
+        })
         this.selectedUser.messages.push({
-          content,
+          data,
           fromSelf: true,
         });
       }
+
     },
     onSelectUser(user) {
       this.selectedUser = user;
@@ -60,6 +64,8 @@ export default {
 
     const initReactiveProperties = (user) => {
       user.hasNewMessages = false;
+      user.isBusy = false; // Initialize isBusy property
+
     };
 
     // Listening for the "users" event from the server, which provides information about users
@@ -118,13 +124,28 @@ export default {
       }
     });
 
-    socket.on("private_message", ({ content, from, to }) => {
+    socket.on("older_messages", (data) => {
+      console.log('> HERE ===========================================older_messages data', data);
+    })
+    socket.on("is_busy", (id) => {
+      let user = this.users.find((user) => user.uniqueId === id);
+      if (user) {
+        console.log('> HERE isBusy received ', user);
+        user.isBusy = true;
+      } else {
+        console.log("User not found:", id);
+        // Handle the case where the user is not found in the users array
+        // This might happen if the user disconnected before setting busy status
+      }
+    });
+
+    socket.on("private_message", ({ data, from, to }) => {
       let currentUserUniqueId = socket.auth.uniqueId;
 
       let user = this.users.find((user) => user.uniqueId === (currentUserUniqueId === from ? to : from));
       if (user) {
         user.messages.push({
-          content,
+          data,
           fromSelf: currentUserUniqueId === from,
         });
         if (user !== this.selectedUser) {
@@ -132,6 +153,8 @@ export default {
         }
       }
     });
+
+
   },
   destroyed() {
     socket.off("connect");

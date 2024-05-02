@@ -24,4 +24,5 @@ export default {
 .icon.connected {
   background-color: #86bb71;
 }
+
 </style>

@@ -30,7 +30,7 @@ export default {
     onUniqueIdSelection(uniqueId) {
       console.log('> HERE ===========================================uniqueId', uniqueId);
       this.uniqueIdAlreadySelected = true;
-      socket.auth = { uniqueId };
+      socket.auth = { uniqueId, token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM3LCJlbWFpbCI6ImFuc2h1bC55YWRhdjEyQHczdmlsbGEuY29tIiwiaWF0IjoxNzEzNTE0ODk1LCJleHAiOjE3MTYxMDY4OTV9.gzxbw7RgIym2cKwOmRdEUqEcnVhmdkKmpHSyvf8w_aA" };
       socket.connect();
     },
   },
@@ -44,7 +44,7 @@ export default {
       this.currentUserFullName = fullName; // Set current user's name
       this.userType = userType; // Set current user's type
 
-      socket.auth = { uniqueId, userType, fullName };
+      socket.auth = { uniqueId, userType, fullName, token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM3LCJlbWFpbCI6ImFuc2h1bC55YWRhdjEyQHczdmlsbGEuY29tIiwiaWF0IjoxNzEzNTE0ODk1LCJleHAiOjE3MTYxMDY4OTV9.gzxbw7RgIym2cKwOmRdEUqEcnVhmdkKmpHSyvf8w_aA" };
       socket.connect();
     }
 
@@ -63,10 +63,13 @@ export default {
     });
 
     socket.on("connect_error", (err) => {
-      console.log('> HERE ===================================Error ========',);
+      console.log('> HERE ===================================Error ========', err);
       if (err.message === "invalid username") {
         this.uniqueIdAlreadySelected = false;
       }
+    });
+    socket.on("exception", (err) => {
+      console.log('> HERE ===================================Error ========', err);
     });
   },
   destroyed() {
