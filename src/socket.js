@@ -1,6 +1,7 @@
 import { io } from "socket.io-client";
 
-const URL = "http://44.219.152.181";
+// const URL = "http://44.219.152.181";
+const URL = "http://127.0.0.1:9090";
 const socket = io(URL, { autoConnect: false });
 
 socket.onAny((event, ...args) => {

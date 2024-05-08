@@ -14,6 +14,9 @@
         <i class="fa fa-star"></i>
       </div>
 
+      <div class="older-messages" @click="showOlderMessages">
+        <i class="fa fa-arrow-up"></i> Older Messages
+        </div>
       <div class="chat-history" ref="chatHistory">
         <ul>
           <li v-for="(message, index) in user.messages" :key="index"
@@ -22,7 +25,7 @@
               <span class="message-data-name" :class="{ 'me': message.fromSelf, 'online ': user.connected }">{{
                 message.fromSelf ? 'You' : user.fullName }}</span>
               <span class="message-data-time">
-                {{ new Date(message.data.time).toLocaleString() }}
+                {{ new Date(message.data.time).toLocaleString() +" ("+message.data.time +")"}}
               </span>
             </div>
             <div class="message" :class="{ 'my-message': message.fromSelf, 'other-message': !message.fromSelf }">
@@ -69,6 +72,11 @@ export default {
         this.$refs.chatHistory.scrollTop = this.$refs.chatHistory.scrollHeight;
       }, 100); // Adjust the delay as needed
     },
+    showOlderMessages() {
+    // alert("Retrieve older messages");
+    this.$emit("olderMessage");
+    // Implement logic to retrieve older messages here
+  },
   },
   watch: {
     'user.messages': {
@@ -99,6 +107,16 @@ export default {
   color: #434651;
 }
 
+.chat .older-messages {
+  text-align: center;
+  padding: 10px 0;
+  cursor: pointer;
+  color: #777; /* Button color */
+}
+
+.chat .older-messages i {
+  margin-right: 5px;
+}
 .chat .chat-header {
   padding: 20px;
   border-bottom: 2px solid white;

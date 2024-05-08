@@ -30,8 +30,10 @@ export default {
     onUniqueIdSelection(uniqueId) {
       console.log('> HERE ===========================================uniqueId', uniqueId);
       this.uniqueIdAlreadySelected = true;
-      socket.auth = { uniqueId, token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM3LCJlbWFpbCI6ImFuc2h1bC55YWRhdjEyQHczdmlsbGEuY29tIiwiaWF0IjoxNzEzNTE0ODk1LCJleHAiOjE3MTYxMDY4OTV9.gzxbw7RgIym2cKwOmRdEUqEcnVhmdkKmpHSyvf8w_aA" };
+      socket.auth = { uniqueId, token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjUsImVtYWlsIjoiZXhwZXJ0QGdtYWlsLmNvbSIsImlhdCI6MTcxNTAwMjMwNywiZXhwIjoxNzE3NTk0MzA3fQ.n3BduIkI99YHsjhbb7oES2sckcFZqhm7Z0tWdU7pX5s" };
       socket.connect();
+
+      console.log('> HERE ===========================================socket connected',socket.connected);
     },
   },
   created() {
@@ -44,8 +46,10 @@ export default {
       this.currentUserFullName = fullName; // Set current user's name
       this.userType = userType; // Set current user's type
 
-      socket.auth = { uniqueId, userType, fullName, token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjM3LCJlbWFpbCI6ImFuc2h1bC55YWRhdjEyQHczdmlsbGEuY29tIiwiaWF0IjoxNzEzNTE0ODk1LCJleHAiOjE3MTYxMDY4OTV9.gzxbw7RgIym2cKwOmRdEUqEcnVhmdkKmpHSyvf8w_aA" };
+      socket.auth = { uniqueId, userType, fullName, token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjUsImVtYWlsIjoiZXhwZXJ0QGdtYWlsLmNvbSIsImlhdCI6MTcxNTAwMjMwNywiZXhwIjoxNzE3NTk0MzA3fQ.n3BduIkI99YHsjhbb7oES2sckcFZqhm7Z0tWdU7pX5s" };
       socket.connect();
+      console.log('> HERE ===========================================socket connected',socket.connected);
+
     }
 
     socket.on("session", ({ uniqueId, userType, fullName }) => {
@@ -54,6 +58,7 @@ export default {
 
       this.currentUserFullName = fullName; // Update current user's name
       this.userType = userType; // Update current user's type
+      socket.emit("is_available");
 
       // store it in the localStorage
       localStorage.setItem("uniqueId", uniqueId);
@@ -85,11 +90,6 @@ body {
   color: black !important;
 }
 
-
-@font-face {
-  font-family: Lato;
-  src: "~/public/fonts/Lato-Regular.ttf";
-}
 
 #app {
   font-family: Lato, Arial, sans-serif;
